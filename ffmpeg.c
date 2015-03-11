@@ -121,8 +121,8 @@ static void do_video_stats(OutputStream *ost, int frame_size);
 static int64_t getutime(void);
 static int64_t getmaxrss(void);
 static int64_t gettime_relative_minus_pause(void);
-static void pauseTranscoding(void);
-static void unpauseTranscoding(void);
+static void pause_transcoding(void);
+static void unpause_transcoding(void);
 
 static int run_as_daemon  = 0;
 static int nb_frames_dup = 0;
@@ -3261,13 +3261,13 @@ static OutputStream *choose_output(void)
     return ost_min;
 }
 
-static void pauseTranscoding(void)
+static void pause_transcoding(void)
 {
     if (!paused_start)
         paused_start = av_gettime_relative();
 }
 
-static void unpauseTranscoding(void)
+static void unpause_transcoding(void)
 {
     if (paused_start) {
         paused_time += av_gettime_relative() - paused_start;
@@ -3280,7 +3280,7 @@ static int check_keyboard_interaction(int64_t cur_time)
     int i, ret, key;
     static int64_t last_time;
     if (received_nb_signals) {
-        unpauseTranscoding();
+        unpause_transcoding();
         return AVERROR_EXIT;
     }
     /* read_key() returns 0 on EOF */
@@ -3291,8 +3291,8 @@ static int check_keyboard_interaction(int64_t cur_time)
         key = -1;
     // Reserve 'u' for unpausing a paused transcode, but allow any key to
     // unpause for backward compatibility
-    if (key == 'u' || key != -1) unpauseTranscoding();
-    if (key == 'p') pauseTranscoding();
+    if (key == 'u' || key != -1) unpause_transcoding();
+    if (key == 'p') pause_transcoding();
     if (key == 'q')
         return AVERROR_EXIT;
     if (key == '+') av_log_set_level(av_log_get_level()+10);
@@ -3850,7 +3850,7 @@ static int transcode_step(void)
 /*
  * The following code is the main loop of the file converter
  */
-static int transcode(void)
+    static int transcode(void)
 {
     int ret, i;
     AVFormatContext *os;
