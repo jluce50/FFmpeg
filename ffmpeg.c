@@ -3850,7 +3850,7 @@ static int transcode_step(void)
 /*
  * The following code is the main loop of the file converter
  */
-    static int transcode(void)
+static int transcode(void)
 {
     int ret, i;
     AVFormatContext *os;
